@@ -1,13 +1,22 @@
 <template>
   <div id="app">
     <div class="container">
+		<h1>{{getCntBuffered}}</h1>
+			<audio id="audio" :loop="innerLoop" ref="audiofile" :src="defaultSong" preload style="display: none" controls></audio>
+
+     <div id = "computed_props">
+         Kilometers : <input type = "text" v-model = "kilometers">
+         Meters : <input type = "text" v-model = "meters">
+      </div>
+      <hr>
       <div class='row'>
-        <audio id="audio" :loop="innerLoop" ref="audiofile" :src="defaultSong" preload style="display: none" controls></audio>
+
         <template v-for='song in songs'>
           <div class="col-4 col-md-3 col-lg-2 song" >
 
             <div class='wrapper'>
 
+						<div :style="{width:cntBuffered + '%'}" class="bufferedPercent"></div>
 
               <div class="overlay-play text-center" v-if="isPlaying && (currentSong.id === song.id )" @click='pause'>
                 <i class="fa fa-stop-circle"></i>
@@ -164,8 +173,9 @@
 
 export default {
   data:()=>({
-    defaultSong:
-        "https://res.cloudinary.com/dmf10fesn/video/upload/v1548882863/audio/Post_Malone_-_Wow._playvk.com.mp3",
+    kilometers : 0,
+    meters:0,
+    defaultSong: '',
     isPlaying: false,
     isLoaded: false,
     isCurrentlyPlaying: "",
@@ -176,6 +186,8 @@ export default {
       state: false,
       value: 1
     },
+
+    cntBuffered: undefined,
 
     durationSeconds: 0,
     currentSeconds: 0,
@@ -192,9 +204,9 @@ export default {
         artist: "Post Malone",
         album: "",
         url:
-            "https://res.cloudinary.com/dmf10fesn/video/upload/v1548882863/audio/Post_Malone_-_Wow._playvk.com.mp3",
+          "https://cdn.kitap.kz/storage/album/4/track_0.mp3",
         cover_art_url:
-            "https://res.cloudinary.com/dmf10fesn/image/upload/v1548884701/audio/album%20arts/s-l300.jpg"
+          "https://res.cloudinary.com/dmf10fesn/image/upload/v1548884701/audio/album%20arts/s-l300.jpg"
       },
       {
         id: 3,
@@ -202,9 +214,9 @@ export default {
         artist: "Drake",
         album: "",
         url:
-            "https://res.cloudinary.com/dmf10fesn/video/upload/v1548884577/audio/Drake_-_Gods_Plan_NaijaExclusive.net.mp3",
+          "https://cdn.kitap.kz/storage/album/4/track_1.mp3",
         cover_art_url:
-            "https://res.cloudinary.com/dmf10fesn/image/upload/v1548884622/audio/album%20arts/a2497580059_10.jpg"
+          "https://res.cloudinary.com/dmf10fesn/image/upload/v1548884622/audio/album%20arts/a2497580059_10.jpg"
       },
 
       {
@@ -213,19 +225,19 @@ export default {
         artist: "Kendrick Lamar",
         album: "",
         url:
-            "https://res.cloudinary.com/dmf10fesn/video/upload/v1548884988/audio/Kendrick-Lamar-HUMBLE.mp3",
+          "https://cdn.kitap.kz/storage/album/4/track_5.mp3",
         cover_art_url:
-            "https://res.cloudinary.com/dmf10fesn/image/upload/v1548884891/audio/album%20arts/FwqM2g6.png"
+          "https://res.cloudinary.com/dmf10fesn/image/upload/v1548884891/audio/album%20arts/FwqM2g6.png"
       },
-      {
+  /*    {
         id: 5,
         title: "Chilling",
         artist: "Kwesi Arthur",
         album: "",
         url:
-            "https://res.cloudinary.com/dmf10fesn/video/upload/v1548887340/audio/Kwesi-Arthur-Chill-Prod-by-Dannyedtracks.mp3",
+          "https://res.cloudinary.com/dmf10fesn/video/upload/v1548887340/audio/Kwesi-Arthur-Chill-Prod-by-Dannyedtracks.mp3",
         cover_art_url:
-            "https://res.cloudinary.com/dmf10fesn/image/upload/v1548887458/audio/album%20arts/Kwesi-Arthur-Chill-Prod.-By-Dannyedtrackswww.Ghanasongs.com_.jpg"
+          "https://res.cloudinary.com/dmf10fesn/image/upload/v1548887458/audio/album%20arts/Kwesi-Arthur-Chill-Prod.-By-Dannyedtrackswww.Ghanasongs.com_.jpg"
       },
       {
         id: 2,
@@ -233,9 +245,9 @@ export default {
         artist: "Post Malone",
         album: "",
         url:
-            "https://res.cloudinary.com/dmf10fesn/video/upload/v1548882769/audio/Post_Malone_-_Better_Now_playvk.com.mp3",
+          "https://res.cloudinary.com/dmf10fesn/video/upload/v1548882769/audio/Post_Malone_-_Better_Now_playvk.com.mp3",
         cover_art_url:
-            "https://res.cloudinary.com/dmf10fesn/image/upload/v1548884701/audio/album%20arts/s-l300.jpg"
+          "https://res.cloudinary.com/dmf10fesn/image/upload/v1548884701/audio/album%20arts/s-l300.jpg"
       },
 
       {
@@ -244,10 +256,10 @@ export default {
         artist: "Kendrick Lamar",
         album: "",
         url:
-            "https://res.cloudinary.com/dmf10fesn/video/upload/v1548884972/audio/Kendrick-Lamar-Bitch-Dont-Kill-My-Vibe.mp3",
+          "https://res.cloudinary.com/dmf10fesn/video/upload/v1548884972/audio/Kendrick-Lamar-Bitch-Dont-Kill-My-Vibe.mp3",
         cover_art_url:
-            "https://res.cloudinary.com/dmf10fesn/image/upload/v1548885857/audio/album%20arts/ae8e88aa099173dbee78d904f035e459bfb69f5a.jpg"
-      }
+          "https://res.cloudinary.com/dmf10fesn/image/upload/v1548885857/audio/album%20arts/ae8e88aa099173dbee78d904f035e459bfb69f5a.jpg"
+      }*/
     ],
 
     playlist: {
@@ -260,9 +272,9 @@ export default {
           artist: "Post Malone",
           album: "",
           url:
-              "https://res.cloudinary.com/dmf10fesn/video/upload/v1548882863/audio/Post_Malone_-_Wow._playvk.com.mp3",
+            "",
           cover_art_url:
-              "https://res.cloudinary.com/dmf10fesn/image/upload/v1548884701/audio/album%20arts/s-l300.jpg"
+            "https://res.cloudinary.com/dmf10fesn/image/upload/v1548884701/audio/album%20arts/s-l300.jpg"
         }
       ]
     },
@@ -284,14 +296,6 @@ export default {
     showPlaylist: false
   }),
 
-  created() {
-    this.innerLoop = this.loop.state;
-  },
-
-  mounted() {
-    this.audioPlayer = document.getElementById('audio');
-    this.initPlayer();
-  },
 
   methods: {
     /** UI control methods
@@ -307,20 +311,32 @@ export default {
     initPlayer() {
       // this.audioPlayer.src = this.playlist.songs[0].url;
       const curSong = this.songs[0]
-      this.audioPlayer.src = curSong.url;
+      const audio = this.audioPlayer
+      audio.src = curSong.url;
       this.setCurrentSong(curSong);
-
-      this.audioPlayer.addEventListener("timeupdate", this.updateTimer);
-      this.audioPlayer.addEventListener("loadeddata", this.load);
-      this.audioPlayer.addEventListener("pause", () => {
+      audio.addEventListener("timeupdate", this.updateTimer);
+      audio.addEventListener("loadeddata", this.load);
+      audio.addEventListener("pause", () => {
         this.isPlaying = false;
       });
-      this.audioPlayer.addEventListener("play", () => {
+
+      audio.addEventListener("progress", () => {
+
+				this.cntBuffered = (audio.buffered.end(0) / this.durationSeconds) * 100
+				if(this.cntBuffered === Infinity){
+          this.cntBuffered = 1
+				}
+				return this.cntBuffered
+      });
+      audio.addEventListener("play", () => {
+        console.log('isPlaying', this.isPlaying)
         this.isPlaying = true;
       });
+      audio.addEventListener("ended", this.playNextSongInPlaylist);
 
-      this.audioPlayer.addEventListener("ended", this.playNextSongInPlaylist);
     },
+
+
 
     play(song = {}) {
       if (typeof song === "object") {
@@ -341,8 +357,8 @@ export default {
             this.setAudio(song.url);
             this.setCurrentSong(song);
             this.playlist.currentIndex = this.getObjectIndexFromArray(
-                song,
-                this.playlist.songs
+              song,
+              this.playlist.songs
             );
             this.previousPlaylistIndex = this.playlist.currentIndex;
             this.audioPlayer.play();
@@ -384,9 +400,9 @@ export default {
         this.loop.value = "all";
         this.onRepeat = true;
       } else if (
-          this.loop.state &&
-          this.onRepeat &&
-          this.loop.value === "all"
+        this.loop.state &&
+        this.onRepeat &&
+        this.loop.value === "all"
       ) {
         this.loop.state = false;
         this.loop.value = 1;
@@ -413,8 +429,8 @@ export default {
       }
 
       this.audioPlayer.src = this.playlist.songs[
-          this.playlist.currentIndex
-          ].url;
+        this.playlist.currentIndex
+        ].url;
       this.setCurrentSong(this.playlist.songs[this.playlist.currentIndex]);
 
       //the code below checks if a song is playing so it can go ahead and auto play
@@ -431,8 +447,8 @@ export default {
     updateTimer() {
       this.currentSeconds = parseInt(this.audioPlayer.currentTime);
       this.progressPercentageValue =
-          (this.currentSeconds / parseInt(this.audioPlayer.duration) * 100 || 0) +
-          "%";
+        (this.currentSeconds / parseInt(this.audioPlayer.duration) * 100 || 0) +
+        "%";
     },
 
     seek(e) {
@@ -447,13 +463,12 @@ export default {
          */
 
         let songPlayTimeAfterSeek = parseInt(
-            this.audioPlayer.duration * seekPos
+          this.audioPlayer.duration * seekPos
         );
 
         this.audioPlayer.currentTime = songPlayTimeAfterSeek;
 
         this.progressPercentageValue = seekPosPercentage;
-        console.log(this.progressPercentageValue);
       } else {
         throw new Error("Song Not Loaded");
       }
@@ -496,9 +511,9 @@ export default {
           if (this.random) {
             //generate a random number
             let randomNumber = this.generateRandomNumber(
-                0,
-                this.playlist.songs.length - 1,
-                this.previousPlaylistIndex
+              0,
+              this.playlist.songs.length - 1,
+              this.previousPlaylistIndex
             );
 
             //set the current index of the playlist
@@ -506,11 +521,11 @@ export default {
 
             //set the src of the audio player
             this.audioPlayer.src = this.playlist.songs[
-                this.playlist.currentIndex
-                ].url;
+              this.playlist.currentIndex
+              ].url;
             //set the current song
             this.setCurrentSong(
-                this.playlist.songs[this.playlist.currentIndex]
+              this.playlist.songs[this.playlist.currentIndex]
             );
             //begin to play
             this.audioPlayer.play();
@@ -536,10 +551,10 @@ export default {
             }
 
             this.audioPlayer.src = this.playlist.songs[
-                this.playlist.currentIndex
-                ].url;
+              this.playlist.currentIndex
+              ].url;
             this.setCurrentSong(
-                this.playlist.songs[this.playlist.currentIndex]
+              this.playlist.songs[this.playlist.currentIndex]
             );
             this.audioPlayer.play();
             this.playlist.currentIndex++;
@@ -555,8 +570,8 @@ export default {
 
       //reset the playlist index when changed and rest the previous playlist index
       this.playlist.currentIndex = this.getObjectIndexFromArray(
-          this.currentSong,
-          this.playlist.songs
+        this.currentSong,
+        this.playlist.songs
       );
       this.previousPlaylistIndex = this.playlist.currentIndex;
     },
@@ -649,10 +664,26 @@ export default {
     }
   },
 
+  created() {
+    this.innerLoop = this.loop.state;
+    this.defaultSong = this.getDefaultSongs
+
+  },
+
+  mounted() {
+    this.audioPlayer = document.getElementById('audio');
+    this.initPlayer();
+  },
+
   computed: {
     currentPlayedTime() {
+
       return this.formatTime(this.currentSeconds);
     },
+
+		getDefaultSongs(){
+      return this.playlist.songs[0].url
+		},
     duration() {
       return this.formatTime(this.durationSeconds);
     },
@@ -662,6 +693,19 @@ export default {
     muted() {
       //this returns true or false
       return this.volume / 100 === 0;
+    },
+    getCntBuffered(){
+      return  this.cntBuffered + '%'
+		}
+  },
+  watch: {
+    kilometers: function(val) {
+                  this.kilometers = val;
+                  this.meters = val * 1000;
+               },
+    meters : function (val) {
+                  this.kilometers = val/ 1000;
+                 this.meters = val;
     }
   }
 };
@@ -1063,6 +1107,12 @@ export default {
     }
   }
 
+  .bufferedPercent{
+    background-color: red;
+		height: 1rem;
+		margin-bottom: 1rem;
+	}
+
   .height-enter-active {
     animation: bounce-in .5s;
   }
@@ -1080,4 +1130,5 @@ export default {
 
     }
   }
+
 </style>
