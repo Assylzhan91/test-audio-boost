@@ -497,7 +497,7 @@ export default {
       //insert the song at that position
 
       let indexOfCurrentSong = this.playlist.currentIndex;
-
+			console.log('Check out for SSH key')
       this.playlist.songs.splice(indexOfCurrentSong + 1, 0, selectedSong);
     },
 
