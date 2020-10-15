@@ -1,7 +1,8 @@
 <template>
   <div id="app">
     <div class="container">
-		<h1>{{getCntBuffered}}</h1>
+
+		<h1>{{getCntBuffered}} == {{durationSeconds}}</h1>
 			<audio id="audio" :loop="innerLoop" ref="audiofile" :src="defaultSong" preload style="display: none" controls></audio>
 
      <div id = "computed_props">
@@ -16,7 +17,7 @@
 
             <div class='wrapper'>
 
-						<div :style="{width:cntBuffered + '%'}" class="bufferedPercent"></div>
+
 
               <div class="overlay-play text-center" v-if="isPlaying && (currentSong.id === song.id )" @click='pause'>
                 <i class="fa fa-stop-circle"></i>
@@ -96,7 +97,7 @@
                 </div>
                 <div class="play">
 <!--                  <i class="fas fa-volume-mute"></i>-->
-                  <i class="fas fa-volume-off" @click="mute()"></i>
+                  <i class="fas fa-volume-off" @click="mute"></i>
                 </div>
 
                 <div class="skip-forward">
@@ -119,7 +120,7 @@
 
                 <div class="progress-container">
                   <div class="progress" id="progress-wrap">
-
+										<div :style="{width:cntBuffered + '%'}" class="bufferedPercent"></div>
                     <div class="progress-handle" :style="{left:progressPercentageValue}"></div>
 
                     <div class="transparent-seeker-layer" @click="seek"></div>
@@ -319,15 +320,10 @@ export default {
       audio.addEventListener("pause", () => {
         this.isPlaying = false;
       });
+			audio.addEventListener("volumechange", this.changeVolume);
 
-      audio.addEventListener("progress", () => {
-
-				this.cntBuffered = (audio.buffered.end(0) / this.durationSeconds) * 100
-				if(this.cntBuffered === Infinity){
-          this.cntBuffered = 1
-				}
-				return this.cntBuffered
-      });
+      audio.addEventListener("progress", this.bufferedProgress);
+      // audio.addEventListener("progress", this.some);
       audio.addEventListener("play", () => {
         console.log('isPlaying', this.isPlaying)
         this.isPlaying = true;
@@ -336,8 +332,19 @@ export default {
 
     },
 
-
-
+		bufferedProgress(){
+/*			this.cntBuffered = parseInt((this.audioPlayer.buffered.end(0) / this.durationSeconds) * 100)
+			console.log(parseInt(this.audioPlayer.buffered.end(0)))*/
+			if(this.isLoaded){
+			  console.log('this.isLoaded')
+        this.cntBuffered = parseInt((this.audioPlayer.buffered.end(0) / this.durationSeconds) * 100)
+			}
+        if(this.cntBuffered === Infinity){
+          console.log('this.cntBuffered === Infinity')
+          return  this.cntBuffered
+        }
+      return this.cntBuffered
+		},
     play(song = {}) {
       if (typeof song === "object") {
         if (this.isLoaded) {
@@ -440,8 +447,7 @@ export default {
     },
 
     mute() {
-      //this.muted is a computed variable available down below
-      this.audioPlayer.muted = !this.audioPlayer.muted
+			this.audioPlayer.muted = !this.audioPlayer.muted
     },
 
     updateTimer() {
@@ -592,7 +598,7 @@ export default {
     load() {
       if (this.audioPlayer.readyState >= 2) {
         this.isLoaded = true;
-        this.durationSeconds = parseInt(this.audioPlayer.duration);
+        // this.durationSeconds = parseInt(this.audioPlayer.duration);
       } else {
         throw new Error("Failed to load sound file.");
       }
@@ -636,6 +642,7 @@ export default {
       this.currentSong.url = song.url;
       this.currentSong.cover_art_url = song.cover_art_url;
       this.previousPlaylistIndex = this.playlist.currentIndex;
+
     },
 
     generateRandomNumber(min, max, except) {
@@ -661,7 +668,12 @@ export default {
         array[index] = temp;
       }
       return array;
-    }
+    },
+
+		changeVolume(e){
+      	// e.target.volume = 20
+			console.dir(e.target)
+		}
   },
 
   created() {
@@ -673,6 +685,7 @@ export default {
   mounted() {
     this.audioPlayer = document.getElementById('audio');
     this.initPlayer();
+    // this.audioPlayer.play()
   },
 
   computed: {
@@ -695,7 +708,7 @@ export default {
       return this.volume / 100 === 0;
     },
     getCntBuffered(){
-      return  this.cntBuffered + '%'
+      return  this.cntBuffered
 		}
   },
   watch: {
