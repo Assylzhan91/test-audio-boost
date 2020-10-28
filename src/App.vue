@@ -1,5 +1,13 @@
 <template>
   <div id="app">
+		<div class="container container_about">
+			<about ></about>
+			<div class="music-player">
+		</div>
+			<div class="main">
+
+			</div>
+
     <div class="container">
 
 		<h1>{{getCntBuffered}} == {{durationSeconds}}</h1>
@@ -43,10 +51,7 @@
 
     </div>
 
-    <div class="music-player">
-
-      <!-- the playlist -->
-      <div class="container">
+		<div class="container">
         <transition name="height">
           <div class="playlist" :class="showPlaylist?'show':'hide'" v-if="showPlaylist">
             <div class="wrap">
@@ -71,9 +76,9 @@
           </div>
         </transition>
       </div>
-      <!-- end of playlist -->
 
-      <!-- the audio player code starts here -->
+
+
       <div class="player" id="player">
 
         <div class="container">
@@ -96,7 +101,7 @@
                   <i class="fas fa-stop-circle" v-else @click="pause"></i>
                 </div>
                 <div class="play">
-<!--                  <i class="fas fa-volume-mute"></i>-->
+&lt;!&ndash;                  <i class="fas fa-volume-mute"></i>&ndash;&gt;
                   <i class="fas fa-volume-off" @click="mute"></i>
                 </div>
 
@@ -163,16 +168,19 @@
         </div>
 
       </div>
-      <!-- the audio player code ends here -->
+
 
     </div>
+
 
 
   </div>
 </template>
 <script>
-
+import About from './views/About'
 export default {
+
+  components: {About},
   data:()=>({
     kilometers : 0,
     meters:0,
@@ -301,7 +309,6 @@ export default {
   methods: {
     /** UI control methods
      * these methods are used to control the ui*/
-
     toggleShowPlaylist() {
       this.showPlaylist = !this.showPlaylist;
     },
@@ -310,22 +317,42 @@ export default {
      * these methods are used to control the music player*/
 
     initPlayer() {
+
       // this.audioPlayer.src = this.playlist.songs[0].url;
       const curSong = this.songs[0]
       const audio = this.audioPlayer
+      // const buffered = audio.buffered.end(0)
       audio.src = curSong.url;
+
       this.setCurrentSong(curSong);
+
+      audio.addEventListener("durationchange", ()=>{
+        // console.log('22 durationchange')
+        // console.log('buffered==durationchange', audio.buffered.end(0))
+				this.cntBuffered =  audio.buffered.end(0)
+			});
+      audio.addEventListener("loadstart", ()=>{
+        // console.log('11 loadstart')
+			});
+
       audio.addEventListener("timeupdate", this.updateTimer);
+      audio.addEventListener("loadedmetadata", ()=>{
+        // console.log('333 loadedmetadata')
+			});
+
+
       audio.addEventListener("loadeddata", this.load);
+
       audio.addEventListener("pause", () => {
         this.isPlaying = false;
       });
+
 			audio.addEventListener("volumechange", this.changeVolume);
 
       audio.addEventListener("progress", this.bufferedProgress);
-      // audio.addEventListener("progress", this.some);
+
       audio.addEventListener("play", () => {
-        console.log('isPlaying', this.isPlaying)
+        // console.log('isPlaying', this.isPlaying)
         this.isPlaying = true;
       });
       audio.addEventListener("ended", this.playNextSongInPlaylist);
@@ -335,12 +362,10 @@ export default {
 		bufferedProgress(){
 /*			this.cntBuffered = parseInt((this.audioPlayer.buffered.end(0) / this.durationSeconds) * 100)
 			console.log(parseInt(this.audioPlayer.buffered.end(0)))*/
-			if(this.isLoaded){
-			  console.log('this.isLoaded')
-        this.cntBuffered = parseInt((this.audioPlayer.buffered.end(0) / this.durationSeconds) * 100)
-			}
+
+			this.cntBuffered = parseInt((this.audioPlayer.buffered.end(0) / this.durationSeconds) * 100)
         if(this.cntBuffered === Infinity){
-          console.log('this.cntBuffered === Infinity')
+          // console.log('this.cntBuffered === Infinity')
           return  this.cntBuffered
         }
       return this.cntBuffered
@@ -497,7 +522,7 @@ export default {
       //insert the song at that position
 
       let indexOfCurrentSong = this.playlist.currentIndex;
-			console.log('Check out for SSH key111')
+			// console.log('Check out for SSH key111')
       this.playlist.songs.splice(indexOfCurrentSong + 1, 0, selectedSong);
     },
 
@@ -708,7 +733,7 @@ export default {
       return this.volume / 100 === 0;
     },
     getCntBuffered(){
-      return  this.cntBuffered
+      return  parseInt(this.cntBuffered / this.duration)
 		}
   },
   watch: {
@@ -727,6 +752,9 @@ export default {
 
 <style lang="scss">
 
+	.main{
+		height: 1400px;
+	}
   html, body {
     padding: 0;
     margin: 0;
@@ -740,7 +768,6 @@ export default {
   }
   #app{
     width:100%;
-    margin-top:50px;
   }
   .song{
     .wrapper{
