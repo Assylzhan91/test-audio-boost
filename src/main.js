@@ -5,10 +5,7 @@ let user = {
   // toString() {
   //   return `{name: "${this.name}", age: ${this.age}}`;
   // }
-  toString(){
-    return this.age
-  }
-};
+  toString()!!2 A};
 
 
 
