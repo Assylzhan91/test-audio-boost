@@ -6,7 +6,7 @@ let user = {
   //   return `{name: "${this.name}", age: ${this.age}}`;
   // }
   toString()!!2 A};
-
+// asda
 
 
 
