@@ -1,56 +1,513 @@
 <template>
   <div id="app">
-		<p>Area is equal to: {{ area() }}</p>
-		<p>
-			<button v-on:click="length += 1">Add length</button>     //#B
-			<button v-on:click="width += 1">Add width</button>       //#B
-			<button v-on:click="some">Cart</button>       //#B
-		</p>
+		<header>
+			<div class="navbar navbar-default">
+				<div class="navbar-header">
+					<h1 v-text="sitename"></h1>
+				</div>
+			</div>
+		</header>
+		<main>
+			<div class="row">
+				<div class="col-md-2 col-md-offset-1">
+					<figure>
+						<img v-bind:src="product.image">
+					</figure>
+				</div>
+				<div class="col-md-6 col-md-offset-2 description">
+					<h1 v-text="product.title"></h1>
+					<p v-html="product.description"></p>
+					<p class="price">
+						{{product.price | formatPrice}}
+					</p>
+					<div
+						class="btn btn-group-toggle"
+						@click="addToCart"
+					>
+					
+					</div>
+				</div>
+			</div>
+
+		</main>
   </div>
 </template>
 <script>
 export default {
   data:()=>({
-    length: 5,     //#C
-    width: 3,
-		cart: []
+      sitename: "Vue.js Pet Depot",
+      product: {
+        id: 1001,
+        title: "Cat Food, 25lb bag",
+        description: "A 25 pound bag of <em>irresistible</em> organic goodness for your cat.",
+        price: 5080,
+        image: "assets/product-fullsize.png",
+      },
+      cart: []
   }),
 
+  filters: {
+    formatPrice(price) {
+      if (!parseInt(price)) { return ""; }	//#C
+      if (price > 99999) {	//#D
+        var priceString = (price / 100).toFixed(2);	//#E
+        var priceArray = priceString.split("").reverse();	//#F
+        var index = 3;	//#F
+        while (priceArray.length > index + 3) {	//#F
+          priceArray.splice(index + 3, 0, ",");	//#F
+          index += 4;	//#F
+        }	//#F
+        return "$" + priceArray.reverse().join("");	//#G
+      } else {
+        return "$" + (price / 100).toFixed(2);	//#H
+      }
+    }
+
+  },
   methods: {
-    area: function() {                     //#D
-      return this.width * this.length;     //#D
-    },
-    some(){
-      let num = 0
-      this.cart.push(num++)
+		addToCart(){
+      let some =  this.product.id
+		  this.cart.push(some)
 		}
   },
-  beforeUpdate: function() {                             //#H
-    console.log('All those data changes happened '       //#H
-      + 'before the output gets updated.');    //#H
+
+  created() {
+
+  },
+
+  mounted() {
+
+  },
+
+  computed: {
+
   },
   watch: {
-    length: function(newVal, oldVal) {                //#E
-      console.log('The old value of length was: '+ oldVal +' The new value of length is: '+ newVal)
-    },
-    width: function(newVal, oldVal) {                 //#F
-      console.log('The old value of width was: '      //#F
-        + oldVal +                          //#F
-        '\nThe new value of width is: '     //#F
-        + newVal);                          //#F
-    },
-    area: function(newVal, oldVal) {                  //#G
-      console.log('The old value of area was: '       //#G
-        + oldVal +                          //#G
-        '\nThe new value of area is: '      //#G
-        + newVal);                          //#G
-    },
-    cart: function(newVal, oldVal) {                  //#G
-      	console.log(newVal)
-      	console.log(oldVal)
-    }
-  },
+
+  }
 };
 
 </script>
 
+<style lang="scss">
+
+	.main{
+		height: 1400px;
+	}
+  html, body {
+    padding: 0;
+    margin: 0;
+    font-family: 'Montserrat', sans-serif;
+  }
+
+
+  img {
+    max-width: 100%;
+    height: auto;
+  }
+  #app{
+    width:100%;
+  }
+  .song{
+    .wrapper{
+      position:relative;
+      width:100%;
+      height:auto;
+      .overlay-play{
+        cursor:pointer;
+        position:absolute;
+        width:40px;
+        height:40px;
+        background-color: #FD6A02;
+        bottom:5px;
+        right:5px;
+        border-radius:50%;
+        i{
+          font-size:1.8em;
+          line-height:40px;
+          color:#fff;
+        }
+      }
+    }
+
+    .song-title{
+      font-weight:700;
+      margin-bottom:0;
+      line-height:auto;
+    }
+
+    .song-artiste{
+      line-height:auto;
+
+    }
+  }
+  .music-player {
+    width: 100%;
+    bottom: 0;
+    position: fixed;
+
+    .playlist {
+      width: auto;
+      max-width: 400px;
+      background-color: rgba(255, 80, 0, 0.71);
+      position: relative;
+      margin-left: auto;
+      z-index: 1;
+
+      .header{
+
+      }
+
+      .show {
+        overflow: auto;
+      }
+
+      .wrap {
+        max-height: 75px;
+        overflow: auto;
+
+        .song-wrap {
+          height: 25px;
+          width: 100%;
+          color: white;
+          cursor: pointer;
+
+          &:hover {
+            background-color: rgba(255, 255, 255, 0.3);
+          }
+
+          &:not(:last-child) {
+
+            border-bottom: 0.05em solid #cdcdcd;
+
+          }
+
+          .song-details {
+            font-size: 0.8em;
+            line-height: 25px;
+            width: 100%;
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: center;
+            padding-right: 10px;
+            padding-left: 10px;
+
+            span {
+              line-height: 15px;
+
+              &.play {
+                display: inline-block;
+                margin-right: 10px;
+                border: 1px solid #fff;
+                border-radius: 10px;
+                height: 17px;
+                width: 17px;
+                text-align: center;
+
+
+                i {
+                  text-align: center;
+
+                }
+              }
+
+            }
+
+            .music-bars-gif {
+              height: 10px;
+            }
+          }
+
+        }
+
+        scrollbar-width: 5px;
+
+        &::-webkit-scrollbar {
+          width: 5px;
+        }
+
+        &::-webkit-scrollbar-track {
+          background-color: #CCC;
+          -webkit-box-shadow: inset 0 0 6px rgb(145, 145, 145);
+          border-radius: 0;
+        }
+
+        &::-webkit-scrollbar-thumb {
+          border-radius: 0;
+          background-color: #d2d2d2;
+          -webkit-box-shadow: inset 0 0 6px rgba(238, 238, 238, 0.5);
+        }
+      }
+    }
+
+    .player {
+
+      //styles for the player
+      position: relative;
+      z-index: 2;
+      width: 100%;
+      height: 60px;
+      background-color: #6f6f6f;
+
+      .player-contents-wrap {
+        position: relative;
+        width: 100%;
+        height: 60px;
+
+        .album-art {
+          background-color: white;
+          width: 60px;
+          height: 60px;
+
+          .img {
+            width: 60px;
+            height: 60px;
+          }
+        }
+
+        .main-controls {
+          position: absolute;
+          right: 0;
+          width: calc(100% - 60px);
+          height: 60px;
+          top: 0;
+
+          i {
+            cursor: pointer;
+          }
+
+          .controls {
+            width: 15%;
+            height: 60px;
+            display: flex;
+            justify-content: space-around;
+            text-align: center;
+            align-items: center;
+            background-color: rgba(0, 0, 0, 0.05);
+
+            i {
+              font-size: 1.8em;
+              color: white;
+            }
+
+            .play {
+              text-align: center;
+              border-radius: 25px;
+              width: 40px;
+              height: 40px;
+              border: 1px solid #fff;
+
+              i {
+                line-height: 40px;
+                text-align: center;
+              }
+            }
+
+            .pause {
+
+            }
+
+          }
+
+          .seek {
+            padding-left: 20px;
+            padding-top: 0;
+            position: absolute;
+            height: 60px;
+            width: 85%;
+            top: 0;
+            left: unset;
+            right: 0;
+
+            .title-and-time {
+              height: 25px;
+              width: 100%;
+              display: flex;
+              flex-direction: row;
+              justify-content: space-between;
+              align-items: center;
+
+              .title {
+
+              }
+
+              .time {
+
+              }
+
+            }
+
+            .progress-container {
+              position: relative;
+              height: 10px;
+              width: auto;
+              display: flex;
+              align-items: center;
+
+              .progress {
+                background-color: rgba(0, 0, 0, 0.05);
+                height: 4px;
+                //width: calc(75% - 30px);
+                width: 100%;
+                margin: 0;
+                padding: 0 2px;
+                border-radius: 0;
+                display: flex;
+                align-items: center;
+
+                box-shadow: 0 1px 1px rgba(0, 0, 0, .1);
+
+                .progress-handle {
+                  display: block;
+                  position: absolute;
+                  z-index: 6;
+                  margin-top: 0;
+                  margin-left: -2px;
+                  width: 8px;
+                  height: 8px;
+                  border-radius: 100%;
+                  background-color: #fff;
+                  box-shadow: 0 1px 6px rgba(0, 0, 0, .2);
+                  cursor: pointer;
+
+                  &:hover {
+                    background-color: #000;
+                  }
+                }
+
+                .transparent-seeker-layer {
+                  //please do not delete this layer unless you know what you are doing
+                  // this code allows the seeker click position to function well
+                  width: 100%;
+                  height: 6px;
+                  background-color: transparent;
+                  position: absolute;
+                  cursor: pointer;
+                  z-index: 5;
+
+                }
+
+                .bar {
+                  width: 0;
+                  background-color: #fff;
+                  height: 4px;
+                  position: absolute;
+
+                }
+
+              }
+            }
+
+            .extra-controls {
+              height: 25px;
+              width: 100%;
+              display: flex;
+              flex-direction: row-reverse;
+              align-items: center;
+
+              .like {
+                padding-left: 8px;
+                height: 25px;
+
+                i {
+                  font-size: 1em;
+                  line-height: 25px;
+                }
+              }
+
+              .download {
+                padding-left: 8px;
+                height: 25px;
+
+                i {
+                  font-size: 1em;
+                  line-height: 25px;
+                }
+              }
+
+              .shuffle-icon {
+                padding-left: 8px;
+                height: 25px;
+
+                i {
+                  font-size: 1.2em;
+                  line-height: 25px;
+                }
+              }
+
+              .repeat {
+                position: relative;
+                padding-left: 8px;
+                height: 25px;
+
+                .repeat-info {
+                  background-color: red;
+                  width: 13px;
+                  height: 13px;
+                  border-radius: 8px;
+                  position: absolute;
+                  font-size: 7px;
+                  line-height: 12px;
+                  text-align: center;
+                  right: -12px;
+                  top: 5px;
+                  color: #fff;
+                  text-transform: capitalize;
+                  letter-spacing: 1px;
+                }
+
+                i {
+                  font-size: 1.2em;
+                  line-height: 25px;
+                }
+              }
+
+              .playlist-icon {
+                margin-left: 30px;
+                height: 25px;
+                i {
+                  font-size: 1.2em;
+                  line-height: 25px;
+                }
+              }
+
+            }
+
+          }
+
+        }
+
+        .volume {
+
+        }
+      }
+
+    }
+  }
+
+  .bufferedPercent{
+    background-color: red;
+		height: 1rem;
+		margin-bottom: 1rem;
+	}
+
+  .height-enter-active {
+    animation: bounce-in .5s;
+  }
+
+  .height-leave-active {
+    animation: bounce-in .5s reverse;
+  }
+
+  @keyframes bounce-in {
+    0% {
+      max-height: 0;
+    }
+    100% {
+      max-height: 75px;
+
+    }
+  }
+
+</style>
