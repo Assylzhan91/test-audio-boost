@@ -1,18 +1,122 @@
+import Vue from 'vue'
+import App from './App.vue'
+import './registerServiceWorker'
+import router from './router'
+import store from './store'
+import '@fortawesome/fontawesome-free/css/all.css'
+import 'bootstrap/dist/css/bootstrap.css'
+import './css.css'
+import './scss/main-app.sass'
+
+Vue.config.productionTip = false
+
+new Vue({
+  router,
+  store,
+  render: h => h(App)
+}).$mount('#app')
+
+
+
+
+/*
+let promise =  new Promise((resolve, reject) => {
+  let rnd =  Math.floor(Math.random() * 10)
+  console.log(rnd)
+  if(rnd > 4){
+    resolve('Hello1')
+  }else {
+    reject('Byee!')
+  }
+})
+promise
+  .then( e =>{
+    console.log(e)
+  }, e =>{
+    console.log(e)
+  })
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function printNumbers(from, to){
+  let foo =  setInterval(()=>{
+    console.log(from)
+    if(from >= to){
+      clearInterval(foo)
+    }
+    from++
+  }, 1000)
+
+}
+
+
+printNumbers(1, 6)
+
+
+
+
+
+
+
+let user = {
+  firstName: "Вася",
+  sayHi() {
+    console.log(`Привет, ${this.firstName}!`);
+  }
+};
+
+// setTimeout(user.sayHi.bind(user), 100);
+
+
+function some (){
+  return  user.sayHi
+}
+
+let output = some()
+output()
+
+import Vue from 'vue'
+import App from './App.vue'
+import './registerServiceWorker'
+import router from './router'
+import store from './store'
+import '@fortawesome/fontawesome-free/css/all.css'
+import 'bootstrap/scss/bootstrap-grid.scss'
+import './css.css'
+import './scss/main-app.sass'
+
+Vue.config.productionTip = false
+
+new Vue({
+  router,
+  store,
+  render: h => h(App)
+}).$mount('#app')
+
+
+
+
+
+
+
+
 let user = {
   name: "John",
   age: 30,
-
-  // toString() {
-  //   return `{name: "${this.name}", age: ${this.age}}`;
-  // }
-  toString()!!2 A};
-// asda
+  }
 
 
-
-console.log(user + 1)
-
-/*
 let date = new Date()
 console.log(date.getFullYear())
 console.log(date.getMonth())
