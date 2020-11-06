@@ -5,27 +5,47 @@
 				<div class="navbar-header">
 					<h1 v-text="sitename"></h1>
 				</div>
+				<div class=" nav navbar-nav navbar-right cart">
+					<button type="button"
+									class="btn btn-info btn-lg"
+									v-on:click="showCheckout">
+						<span
+							class="glyphicon glyphicon-shopping-cart">
+							{{ cartItemCount}}
+						</span>
+						<i class="fas fa-shopping-cart"></i>
+						Checkout
+					</button>
+				</div>
+
 			</div>
 		</header>
 		<main>
 			<div class="row">
-				<div class="col-md-2 col-md-offset-1">
-					<figure>
-						<img v-bind:src="product.image">
-					</figure>
-				</div>
-				<div class="col-md-6 col-md-offset-2 description">
-					<h1 v-text="product.title"></h1>
-					<p v-html="product.description"></p>
-					<p class="price">
-						{{product.price | formatPrice}}
-					</p>
-					<div
-						class="btn btn-group-toggle"
-						@click="addToCart"
-					>
-					
+				<template v-if="showProduct">
+					<div class="col-md-2 col-md-offset-1">
+						<figure>
+							<img v-bind:src="product.image">
+						</figure>
 					</div>
+					<div class="col-md-6 col-md-offset-2 description">
+						<h1 v-text="product.title"></h1>
+						<p v-html="product.description"></p>
+						<p class="price">
+							{{product.price | formatPrice}}
+						</p>
+						<button
+							class="btn btn-warning"
+							@click="addToCart"
+							v-show="canAddToCart"
+						>
+						Add to Cart
+							{{canAddToCart}}
+						</button>
+					</div>
+				</template>
+				<div v-else>
+						
 				</div>
 			</div>
 
@@ -35,15 +55,18 @@
 <script>
 export default {
   data:()=>({
-      sitename: "Vue.js Pet Depot",
-      product: {
-        id: 1001,
-        title: "Cat Food, 25lb bag",
-        description: "A 25 pound bag of <em>irresistible</em> organic goodness for your cat.",
-        price: 5080,
-        image: "assets/product-fullsize.png",
-      },
-      cart: []
+		sitename: "Vue.js Pet Depot",
+		product: {
+			id: 1001,
+			title: "Cat Food, 25lb bag",
+			description: "A 25 pound bag of <em>irresistible</em> organic goodness for your cat.",
+			price: 5080,
+			image: "assets/product-fullsize.png",
+      availableInventory: 5
+		},
+		cart: [],
+    showProduct: true,
+
   }),
 
   filters: {
@@ -64,11 +87,23 @@ export default {
     }
 
   },
+  computed: {
+    cartItemCount: function() {      //#B
+      return this.cart.length || 0;       //#B
+    },
+    canAddToCart: function (){
+      return this.product.availableInventory > this.cartItemCount
+		}
+  },
   methods: {
 		addToCart(){
       let some =  this.product.id
 		  this.cart.push(some)
-		}
+		},
+		showCheckout() {
+		  console.log(this.showProduct)
+      this.showProduct = this.showProduct ? false : true
+    },
   },
 
   created() {
@@ -79,9 +114,6 @@ export default {
 
   },
 
-  computed: {
-
-  },
   watch: {
 
   }

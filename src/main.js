@@ -1,3 +1,96 @@
+function* generateSequence(start, end) {
+  for (let i = start; i <= end; i++) yield i;
+}
+function* generatePasswordCodes() {
+
+  // 0..9
+
+  yield* generateSequence(48, 57);
+
+  // A..Z
+  yield* generateSequence(65, 90);
+
+  // a..z
+  yield* generateSequence(97, 122);
+
+}
+let str = '';
+for(let code of generatePasswordCodes()) {
+  str += String.fromCharCode(code);
+}
+
+console.log(str)
+
+
+/*
+let iterable = 'some String';
+let arr = []
+let id = 0
+for (let value of iterable) {
+
+  if(value !== ''){
+    arr.push({
+      [id]: value
+    })
+    id++;
+  }
+}
+
+
+
+
+
+
+
+
+function makeIterator(array){
+  let nextIndex = 0;
+  return {
+    next: function(){
+      return nextIndex < array.length
+          ? {value: array[nextIndex++], done: false}
+          : {done: true};
+    }
+  }
+}
+
+let arr = [1, 2, 3, true, 'string', {someFoo: function (){}}]
+
+
+let output2 =  makeIterator(arr)
+
+console.log(output2.next())
+console.log(output2.next())
+console.log(output2.next())
+console.log(output2.next())
+console.log(output2.next())
+console.log(output2.next())
+console.log(output2.next())
+
+
+let range = {
+  from: 1,
+  to: 5,
+
+  [Symbol.iterator]() {
+    return {
+      current: this.from,
+      last: this.to,
+
+      next() {
+        if (this.current <= this.last) {
+          return { done: false, value: this.current++ };
+        } else {
+          return { done: true };
+        }
+      }
+    };
+  }
+};
+
+console.log([...range])
+
+
 import Vue from 'vue'
 import App from './App.vue'
 import './registerServiceWorker'
@@ -19,7 +112,8 @@ new Vue({
 
 
 
-/*
+
+
 let promise =  new Promise((resolve, reject) => {
   let rnd =  Math.floor(Math.random() * 10)
   console.log(rnd)
