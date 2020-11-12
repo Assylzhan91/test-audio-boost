@@ -1,55 +1,187 @@
 <template>
   <div id="app">
-		<header>
-			<div class="navbar navbar-default">
-				<div class="navbar-header">
-					<h1 v-text="sitename"></h1>
-				</div>
-				<div class=" nav navbar-nav navbar-right cart">
-					<button type="button"
-									class="btn btn-info btn-lg"
-									v-on:click="showCheckout">
+		<div class="container">
+			<header>
+				<div class="navbar navbar-default">
+					<div class="navbar-header">
+						<h1 v-text="sitename"></h1>
+					</div>
+					<div class=" nav navbar-nav navbar-right cart">
+						<button type="button"
+										class="btn btn-info btn-lg"
+										v-on:click="showCheckout">
 						<span
 							class="glyphicon glyphicon-shopping-cart">
 							{{ cartItemCount}}
 						</span>
-						<i class="fas fa-shopping-cart"></i>
-						Checkout
-					</button>
-				</div>
-
-			</div>
-		</header>
-		<main>
-			<div class="row">
-				<template v-if="showProduct">
-					<div class="col-md-2 col-md-offset-1">
-						<figure>
-							<img v-bind:src="product.image">
-						</figure>
-					</div>
-					<div class="col-md-6 col-md-offset-2 description">
-						<h1 v-text="product.title"></h1>
-						<p v-html="product.description"></p>
-						<p class="price">
-							{{product.price | formatPrice}}
-						</p>
-						<button
-							class="btn btn-warning"
-							@click="addToCart"
-							v-show="canAddToCart"
-						>
-						Add to Cart
-							{{canAddToCart}}
+							<i class="fas fa-shopping-cart"></i>
+							Checkout
 						</button>
 					</div>
-				</template>
-				<div v-else>
-						
+
+				</div>
+			</header>
+			<main>
+				<div class="row">
+					<template v-if="showProduct">
+						<div class="col-md-2 col-md-offset-1">
+							<figure>
+								<img v-bind:src="product.image">
+							</figure>
+						</div>
+						<div class="col-md-6 col-md-offset-2 description">
+							<h1 v-text="product.title"></h1>
+							<p v-html="product.description"></p>
+							<p class="price">
+								{{product.price | formatPrice}}
+							</p>
+							<button class="btn btn-primary btn-lg"
+											v-on:click="addToCart"
+											v-if="canAddToCart">Add to cart</button>
+							<button disabled="true" class="btn btn-primary btn-lg"
+											v-else >Add to cart</button>
+							<span class="inventory-message"
+										v-if="product.availableInventory - cartItemCount === 0">
+								{{ inventoryMessage }}
+							</span>
+							<span class="inventory-message"
+										v-else-if="product.availableInventory - cartItemCount < 5">
+									{{ inventoryMessage }}
+							</span>
+							<span v-else>{{ inventoryMessage }}</span>
+
+							<div class="rating">
+								<span v-for="n in 5" :class="{'rating-active': checkRating(n)}">
+									☆
+								</span>
+							</div>
+						</div>
+					</template>
+					<div v-else>
+
+					</div>
+				</div>
+
+			</main>
+
+			<div>
+				<div class="col-md-6">
+					<strong>First Name:</strong>
+					<input v-model.trim="order.firstName"
+									class="form-control"/>
+					{{order.firstName.length}}
+				</div>
+
+				<div class="col-md-6">
+					<strong>Last Name:</strong>
+					<input v-model.trim="order.lastName"
+								 class="form-control"/>
+				</div>
+
+				<div class="col-md-12 verify">
+  				<ul>
+    				<li>First Name: {{order.firstName}}</li>
+    				<li>Last Name:  {{order.lastName}}</li>
+  				</ul>
+				</div>
+
+				<div class="form-group">
+					<div class="col-md-12"><strong>Address:</strong></div>
+					<div class="col-md-12">
+						<input v-model="order.address"
+									 class="form-control" />
+					</div>
+				</div>
+
+				<div class="form-group">
+					<div class="col-md-12"><strong>City:</strong></div>
+					<div class="col-md-12">
+						<input v-model="order.city"
+									 class="form-control" />
+					</div>
+				</div>
+
+				<div class="form-group">
+					<div class="col-md-2">
+						<strong>State:</strong>
+						<select v-model="order.state" class="form-control">
+							<option disabled value="">State</option>
+							<option v-for="(state, key, idx) in states"
+											:value="state"
+							>{{ state }}</option>
+						</select>
+						<h1>{{order.state}}</h1>
+					</div>
+				</div>
+
+				<div class="form-group">
+					<div class="col-md-6 col-md-offset-4">
+						<strong>Zip / Postal Code:</strong>
+						<input 	type="number"
+										v-model.number="order.zip"
+									 	class="form-control"/>
+					</div>
+				</div>
+
+				<div class="col-md-12 verify">
+					<ul class="list" ref="list">
+						<li><p>FullName: {{fullName}}</p></li>
+						<li><p>Address: {{order.address}}</p></li>
+						<li>City: {{order.city}}</li>
+						<li>Zip: {{order.zip}}</li>
+						<li>State: {{order.state}}</li>
+						<li>Method: {{order.method}}<br></li>
+						<li>Gift: {{order.gift}}<br></li>
+					</ul>
 				</div>
 			</div>
+			<div>
+				<div class="form-group">
+					<div class="col-md-6 boxes">
+						<input type="checkbox"
+									 id="gift"
+									 value="true"
+									 v-model="order.gift">
+						<label for="gift">Ship As Gift?</label>
+					</div>
+				</div>
+				<div class="form-group">
+					<div class="col-md-6 boxes">
+						<input type="radio"
+									 id="home"
+									 value="Home"
+									 v-model="order.method">
+						<label for="home">Home</label>
+						<input type="radio"
+									 id="business"
+									 value="Business11"
+									 v-model="order.method">
+						<label for="business">Business</label>
+					</div>
+				</div>
+			</div>
+			<div>
+				<div class="form-group">
+					<div class="col-md-6 boxes">
+						<input
+							type="checkbox"
+						 	id="gift1" value="true"
+						 	v-bind:true-value="order.sendGift"
+							v-bind:false-value="order.dontSendGift"
+							v-model="order.gift">
+						<label for="gift">Ship As Gift?</label>
+					</div>
+				</div>
 
-		</main>
+			</div>
+			<div class="form-group form-group_last" @click="onInputLast">
+				<div class="col-md-6">
+					<button type="submit"
+									class="btn btn-primary submit"
+									v-on:click="submitForm">Place Order</button>
+				</div>
+			</div>
+		</div>
   </div>
 </template>
 <script>
@@ -62,16 +194,35 @@ export default {
 			description: "A 25 pound bag of <em>irresistible</em> organic goodness for your cat.",
 			price: 5080,
 			image: "assets/product-fullsize.png",
-      availableInventory: 5
+      availableInventory: 10,
+			rating: 4
 		},
 		cart: [],
     showProduct: true,
+    states: {
+      AL: 'Alabama',
+      AR: 'Arizona',
+      CA: 'California',
+      NV: 'Nevada'
+    },
+		order: {
+      firstName: '',
+      lastName: '',
+      address: '',
+      city: '',
+      zip: '',
+			method: 'Home',
+      gift: false,
+      sendGift: 'Send As A Gift',
+      dontSendGift: 'Do Not Send As A Gift',
+			state: ''
+    },
 
   }),
 
   filters: {
     formatPrice(price) {
-      if (!parseInt(price)) { return ""; }	//#C
+      if (!parseInt(price)) { return ""; }
       if (price > 99999) {	//#D
         var priceString = (price / 100).toFixed(2);	//#E
         var priceArray = priceString.split("").reverse();	//#F
@@ -88,11 +239,25 @@ export default {
 
   },
   computed: {
-    cartItemCount: function() {      //#B
-      return this.cart.length || 0;       //#B
+    cartItemCount: function() {
+      return this.cart.length || 0;
     },
     canAddToCart: function (){
       return this.product.availableInventory > this.cartItemCount
+		},
+		fullName: function (){
+      return `${this.order.firstName} ${this.order.lastName}`
+		},
+		inventoryMessage(){
+      let avInv =  this.product.availableInventory
+      let crItemCnt =  this.cartItemCount
+      switch (true){
+        case avInv - crItemCnt === 0:
+          return 'All Out!';
+        case avInv - crItemCnt < 5:
+          return 	`Only ${avInv - crItemCnt} left!`;
+          default: return `Buy Now`
+			}
 		}
   },
   methods: {
@@ -102,14 +267,36 @@ export default {
 		},
 		showCheckout() {
 		  console.log(this.showProduct)
-      this.showProduct = this.showProduct ? false : true
+      this.showProduct = !this.showProduct
     },
+		submitForm(){
+		  console.log('submitForm')
+		},
+    checkRating(n) {
+      return this.product.rating - n >= 0;			//#A
+    },
+
+    onInputLast(e){
+		  const list =  this.$refs.list.childNodes,
+						colors = ['red', 'green', 'yellow', 'blue', 'tomato', '#ccc', '#62a9d7'],
+						convertList = Array.from(list)
+      list.forEach((item, idx)=>{
+        item.style.backgroundColor =  colors[idx]
+        item.innerHTML = colors[idx]
+			})
+
+      // convertList.filter((item, idx)=>{
+      //   item.innerHTML = colors[idx]
+			// })
+		}
   },
 
   created() {
 
   },
-
+	beforeMount() {
+    // this.order.state = this.states.CA
+  },
   mounted() {
 
   },
@@ -122,7 +309,10 @@ export default {
 </script>
 
 <style lang="scss">
-
+	.list *{
+		padding: 0;
+		margin: 0;
+	}
 	.main{
 		height: 1400px;
 	}
@@ -131,6 +321,10 @@ export default {
     margin: 0;
     font-family: 'Montserrat', sans-serif;
   }
+
+	.form-group_last{
+		padding-bottom: 100px;
+	}
 
 
   img {
