@@ -1,6 +1,7 @@
 <template>
-  <div id="app">
-		<div class="container">
+  <div id="app" @scroll="onScrollHandlerApp">
+		<button ref="topButton">topButton</button>
+		<div class="container" :class="{'loading': classLoaded}">
 			<header>
 				<div class="navbar navbar-default">
 					<div class="navbar-header">
@@ -21,8 +22,9 @@
 
 				</div>
 			</header>
+			<h1>{{cart}}</h1>
 			<main>
-				<div class="row">
+				<div v-for="(product, key)  in products" class="row mb-5" text="">
 					<template v-if="showProduct">
 						<div class="col-md-2 col-md-offset-1">
 							<figure>
@@ -36,22 +38,22 @@
 								{{product.price | formatPrice}}
 							</p>
 							<button class="btn btn-primary btn-lg"
-											v-on:click="addToCart"
-											v-if="canAddToCart">Add to cart</button>
+											v-on:click="addToCart(product)"
+											v-if="canAddToCartMethod(key)">Add to cart</button>
 							<button disabled="true" class="btn btn-primary btn-lg"
 											v-else >Add to cart</button>
 							<span class="inventory-message"
-										v-if="product.availableInventory - cartItemCount === 0">
+										v-if="product.availableInventory - cartCount(product.id) === 0">
 								{{ inventoryMessage }}
 							</span>
 							<span class="inventory-message"
-										v-else-if="product.availableInventory - cartItemCount < 5">
-									{{ inventoryMessage }}
+										v-else-if="product.availableInventory - cartCount(product.id) < 5">
+									{{ product.availableInventory - cartCount(product.id) }}
 							</span>
-							<span v-else>{{ inventoryMessage }}</span>
+							<span v-else>{{ inventoryMessage }} HEllo</span>
 
 							<div class="rating">
-								<span v-for="n in 5" :class="{'rating-active': checkRating(n)}">
+								<span v-for="n in 5" :class="{'rating-active': checkRating(n, key)}">
 									☆
 								</span>
 							</div>
@@ -182,10 +184,15 @@
 				</div>
 			</div>
 		</div>
+		<app-home text="Hello from child component">
+		</app-home>
   </div>
 </template>
 <script>
+ import axios from 'axios'
+ import Home from './views/Home'
 export default {
+   components: {'app-home':Home},
   data:()=>({
 		sitename: "Vue.js Pet Depot",
 		product: {
@@ -197,6 +204,7 @@ export default {
       availableInventory: 10,
 			rating: 4
 		},
+		classLoaded: false,
 		cart: [],
     showProduct: true,
     states: {
@@ -217,6 +225,8 @@ export default {
       dontSendGift: 'Do Not Send As A Gift',
 			state: ''
     },
+		products: [],
+    checkPointHeight: 200,
 
   }),
 
@@ -249,31 +259,34 @@ export default {
       return `${this.order.firstName} ${this.order.lastName}`
 		},
 		inventoryMessage(){
-      let avInv =  this.product.availableInventory
+      // let avInv =  this.product.availableInventory
       let crItemCnt =  this.cartItemCount
-      switch (true){
-        case avInv - crItemCnt === 0:
-          return 'All Out!';
-        case avInv - crItemCnt < 5:
-          return 	`Only ${avInv - crItemCnt} left!`;
+			for(let i = 0; i < this.products.length; i++){
+        switch (true){
+          case this.products[i].availableInventory - crItemCnt === 0:
+            return 'All Out!';
+          case this.products[i].availableInventory - crItemCnt < 5:
+            return 	`Only ${this.products[i].availableInventory - crItemCnt} left!`;
           default: return `Buy Now`
+        }
 			}
-		}
+			/*
+      c*/
+		},
+
   },
   methods: {
-		addToCart(){
-      let some =  this.product.id
-		  this.cart.push(some)
+		addToCart(product){
+		  this.cart.push(product.id)
 		},
 		showCheckout() {
-		  console.log(this.showProduct)
       this.showProduct = !this.showProduct
     },
 		submitForm(){
 		  console.log('submitForm')
 		},
-    checkRating(n) {
-      return this.product.rating - n >= 0;			//#A
+    checkRating(n, key) {
+      return this.products[key].rating - n >= 0;			//#A
     },
 
     onInputLast(e){
@@ -284,28 +297,126 @@ export default {
         item.style.backgroundColor =  colors[idx]
         item.innerHTML = colors[idx]
 			})
+		},
+    canAddToCartMethod(key){
+      return this.products[key].availableInventory > this.cartItemCount
+		},
+		cartCount(key){
+			let count = 0
 
-      // convertList.filter((item, idx)=>{
-      //   item.innerHTML = colors[idx]
-			// })
-		}
+			for(let i = 0; i < this.cart.length; i++){
+			  if(this.cart[i] === key){
+          count++
+			  }
+			}
+
+			return count
+		},
+
+    onScrollHandlerApp(e){
+
+
+    }
+
   },
 
   created() {
+  axios.get('/static/products.json')
+			.then(response =>{
+			  setTimeout((event)=>{
+          if(response.status === 200){
+            this.classLoaded = false
+            this.products = response.data.products
+          }
+			  }, 1000)
+
+
+			})
+			.catch(response=>{
+			  console.log('error')
+			})
+
+
 
   },
 	beforeMount() {
+
+
     // this.order.state = this.states.CA
   },
   mounted() {
+    this.$refs.topButton.addEventListener('click', this.onScrollHandlerApp)
+	/*let height =  parseInt(window.localStorage.getItem('saveHeight'))
+    document.documentElement.clientHeight = height
+		console.log(document.documentElement.clientHeight, 'document.documentElement.clientHeight')
+		console.log(height, 'document.clientHeight')*/
 
   },
 
   watch: {
 
+  },
+	updated() {
+
+  },
+	destroyed() {
+    window.removeEventListener('scroll', this.onScrollHandlerApp);
   }
 };
 
+/*
+ function products2(){
+   return {
+     "products":[
+       {
+         "id": 1001,
+         "title": "Cat Food, 25lb bag",
+         "description": "A 25 pound bag of <em>irresistible</em>, organic goodness for your cat.",
+         "price": 2000,
+         "image": "assets/images/product-fullsize.png",
+         "availableInventory": 10,
+         "rating": 1
+       },
+       {
+         "id": 1002,
+         "title": "Yarn",
+         "description": "Yarn your cat can play with for a very <strong>long</strong> time!",
+         "price": 299,
+         "image": "assets/images/yarn.jpg",
+         "availableInventory": 7,
+         "rating": 1
+       },
+       {
+         "id": 1003,
+         "title": "Kitty Litter",
+         "description": "Premium kitty litter for your cat.",
+         "price": 1100,
+         "image": "assets/images/cat-litter.jpg",
+         "availableInventory": 99,
+         "rating": 4
+       },
+       {
+         "id": 1004,
+         "title": "Cat House",
+         "description": "A place for your cat to play!",
+         "price": 799,
+         "image": "assets/images/cat-house.jpg",
+         "availableInventory": 11,
+         "rating": 5
+       },
+       {
+         "id": 1005,
+         "title": "Laser Pointer",
+         "description": "Drive your cat crazy with this <em>amazing</em> product.",
+         "price": 4999,
+         "image": "assets/images/laser-pointer.jpg",
+         "availableInventory": 25,
+         "rating": 1
+       }
+     ]
+   }
+
+ }*/
 </script>
 
 <style lang="scss">
@@ -736,4 +847,10 @@ export default {
     }
   }
 
+  .loading{
+    background-color: red;
+	}
+
 </style>
+
+
